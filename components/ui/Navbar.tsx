@@ -105,25 +105,20 @@ export default function Navbar() {
                     href="/"
                     id="nav-logo"
                     aria-label="Jashwanth — Home"
-                    className="nav-anim flex items-center gap-2 group"
+                    className="nav-anim flex items-center gap-2.5 group"
                 >
-                    {/* Bracket logo mark */}
                     <span
-                        className="font-mono-custom text-lg font-bold text-neon-cyan
-                       group-hover:shadow-neon-cyan-sm transition-all duration-300"
-                        aria-hidden="true"
+                        className="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-neon-cyan/50
+                       px-1.5 text-[0.65rem] font-semibold font-mono-custom uppercase tracking-[0.12em] text-neon-cyan
+                       transition-all duration-300 group-hover:border-neon-cyan group-hover:shadow-neon-cyan-sm"
                     >
-                        {`<`}
-                    </span>
-                    <span className="font-display font-bold text-lg text-text-primary tracking-tight">
-                        J
+                        JS
                     </span>
                     <span
-                        className="font-mono-custom text-lg font-bold text-neon-cyan
-                       group-hover:shadow-neon-cyan-sm transition-all duration-300"
-                        aria-hidden="true"
+                        className="font-display text-lg font-bold tracking-[0.01em] text-text-primary
+                       transition-colors duration-300 group-hover:text-neon-cyan"
                     >
-                        {`/>`}
+                        Jashwanth
                     </span>
                 </Link>
 

@@ -7,8 +7,9 @@ import { gsap } from "@/animations/gsap.config";
 const HOVER_SELECTORS = "a, button, .project-card, .skill-tag";
 
 export default function TechCursor() {
-    const dotRef      = useRef<HTMLDivElement>(null);
-    const ringRef     = useRef<HTMLDivElement>(null);
+    const coreRef = useRef<HTMLDivElement>(null);
+    const haloRef = useRef<HTMLDivElement>(null);
+    const radarRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         // ── Disable on touch / mobile devices ────────────────────────────────
@@ -20,80 +21,105 @@ export default function TechCursor() {
             return;
         }
 
-        const dot  = dotRef.current;
-        const ring = ringRef.current;
-        if (!dot || !ring) return;
+        const core = coreRef.current;
+        const halo = haloRef.current;
+        const radar = radarRef.current;
+        if (!core || !halo || !radar) return;
 
         // Show cursors once we know JS is running and we're on desktop
-        dot.style.opacity  = "1";
-        ring.style.opacity = "1";
+        core.style.opacity = "1";
+        halo.style.opacity = "1";
+        radar.style.opacity = "1";
 
         // ── GSAP quickTo for near-zero-latency dot tracking ───────────────────
-        const moveDotX  = gsap.quickTo(dot,  "x", { duration: 0.1, ease: "none" });
-        const moveDotY  = gsap.quickTo(dot,  "y", { duration: 0.1, ease: "none" });
-        // Ring lags behind for the "follower" feel
-        const moveRingX = gsap.quickTo(ring, "x", { duration: 0.45, ease: "power3.out" });
-        const moveRingY = gsap.quickTo(ring, "y", { duration: 0.45, ease: "power3.out" });
+        const moveCoreX = gsap.quickTo(core, "x", { duration: 0.08, ease: "none" });
+        const moveCoreY = gsap.quickTo(core, "y", { duration: 0.08, ease: "none" });
+        const moveHaloX = gsap.quickTo(halo, "x", { duration: 0.34, ease: "power3.out" });
+        const moveHaloY = gsap.quickTo(halo, "y", { duration: 0.34, ease: "power3.out" });
+        const moveRadarX = gsap.quickTo(radar, "x", { duration: 0.56, ease: "power3.out" });
+        const moveRadarY = gsap.quickTo(radar, "y", { duration: 0.56, ease: "power3.out" });
+
+        gsap.to(radar, {
+            rotate: 360,
+            duration: 3.2,
+            ease: "none",
+            repeat: -1,
+            transformOrigin: "50% 50%",
+        });
 
         // ── Mouse move ────────────────────────────────────────────────────────
         function onMouseMove(e: MouseEvent) {
-            moveDotX(e.clientX);
-            moveDotY(e.clientY);
-            moveRingX(e.clientX);
-            moveRingY(e.clientY);
+            moveCoreX(e.clientX);
+            moveCoreY(e.clientY);
+            moveHaloX(e.clientX);
+            moveHaloY(e.clientY);
+            moveRadarX(e.clientX);
+            moveRadarY(e.clientY);
         }
 
         // ── Hover expand ──────────────────────────────────────────────────────
         function onMouseEnterHoverable() {
-            gsap.to(dot, {
-                scale: 2.5,
-                backgroundColor: "var(--neon-purple)",
+            gsap.to(core, {
+                scale: 1.35,
+                duration: 0.2,
+                ease: "power2.out",
+            });
+            gsap.to(halo, {
+                scale: 1.22,
+                borderColor: "var(--neon-cyan)",
+                boxShadow: "0 0 24px 5px rgba(0,245,212,0.25), inset 0 0 16px rgba(0,245,212,0.18)",
                 duration: 0.25,
                 ease: "power2.out",
             });
-            gsap.to(ring, {
-                scale: 1.7,
-                borderColor: "var(--neon-cyan)",
-                boxShadow: "0 0 18px 4px rgba(0,245,212,0.45), 0 0 36px 8px rgba(0,245,212,0.2)",
-                duration: 0.3,
+            gsap.to(radar, {
+                scale: 1.26,
+                opacity: 0.95,
+                duration: 0.25,
                 ease: "power2.out",
             });
         }
 
         function onMouseLeaveHoverable() {
-            gsap.to(dot, {
+            gsap.to(core, {
                 scale: 1,
-                backgroundColor: "var(--neon-cyan)",
+                duration: 0.2,
+                ease: "power2.out",
+            });
+            gsap.to(halo, {
+                scale: 1,
+                borderColor: "rgba(var(--neon-cyan-rgb), 0.72)",
+                boxShadow: "0 0 12px 2px rgba(0,245,212,0.2), inset 0 0 10px rgba(56,189,248,0.15)",
                 duration: 0.25,
                 ease: "power2.out",
             });
-            gsap.to(ring, {
+            gsap.to(radar, {
                 scale: 1,
-                borderColor: "var(--neon-purple)",
-                boxShadow: "0 0 8px 1px rgba(124,58,237,0.35)",
-                duration: 0.3,
+                opacity: 0.7,
+                duration: 0.25,
                 ease: "power2.out",
             });
         }
 
         // ── Mouse down / up click pulse ───────────────────────────────────────
         function onMouseDown() {
-            gsap.to(dot, { scale: 0.7, duration: 0.1, ease: "power2.in" });
-            gsap.to(ring, { scale: 0.85, duration: 0.12, ease: "power2.in" });
+            gsap.to(core, { scale: 0.76, duration: 0.1, ease: "power2.in" });
+            gsap.to(halo, { scale: 0.9, duration: 0.12, ease: "power2.in" });
+            gsap.to(radar, { scale: 0.88, duration: 0.12, ease: "power2.in" });
         }
 
         function onMouseUp() {
-            gsap.to(dot,  { scale: 1, duration: 0.2, ease: "back.out(2)" });
-            gsap.to(ring, { scale: 1, duration: 0.2, ease: "back.out(2)" });
+            gsap.to(core, { scale: 1, duration: 0.22, ease: "back.out(2)" });
+            gsap.to(halo, { scale: 1, duration: 0.22, ease: "back.out(2)" });
+            gsap.to(radar, { scale: 1, duration: 0.22, ease: "back.out(2)" });
         }
 
         // ── Hide when cursor leaves the window ────────────────────────────────
         function onMouseLeaveWindow() {
-            gsap.to([dot, ring], { opacity: 0, duration: 0.2 });
+            gsap.to([core, halo, radar], { opacity: 0, duration: 0.2 });
         }
 
         function onMouseEnterWindow() {
-            gsap.to([dot, ring], { opacity: 1, duration: 0.2 });
+            gsap.to([core, halo, radar], { opacity: 1, duration: 0.2 });
         }
 
         // ── Attach events ─────────────────────────────────────────────────────
@@ -134,15 +160,20 @@ export default function TechCursor() {
         <>
             {/* Primary dot */}
             <div
-                ref={dotRef}
+                ref={coreRef}
                 aria-hidden="true"
-                className="tech-cursor-dot"
+                className="tech-cursor-core"
             />
             {/* Follower ring */}
             <div
-                ref={ringRef}
+                ref={haloRef}
                 aria-hidden="true"
-                className="tech-cursor-ring"
+                className="tech-cursor-halo"
+            />
+            <div
+                ref={radarRef}
+                aria-hidden="true"
+                className="tech-cursor-radar"
             />
         </>
     );

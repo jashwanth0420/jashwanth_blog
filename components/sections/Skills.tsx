@@ -9,29 +9,39 @@ export default function Skills() {
 
     useGSAP(
         () => {
-            gsap.from(".skill-card", {
-                opacity: 0,
-                y: 30,
-                stagger: 0.1,
-                duration: 0.6,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: "top 80%",
-                },
-            });
+            gsap.to(
+                ".skill-card",
+                {
+                    opacity: 1,
+                    y: 0,
+                    stagger: 0.1,
+                    duration: 0.65,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: "top 85%",
+                        once: true,
+                        invalidateOnRefresh: true,
+                    },
+                }
+            );
 
-            gsap.from(".skill-tag", {
-                opacity: 0,
-                scale: 0.8,
-                stagger: 0.02,
-                duration: 0.3,
-                ease: "back.out(1.7)",
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: "top 70%",
-                },
-            });
+            gsap.to(
+                ".skill-tag",
+                {
+                    opacity: 1,
+                    scale: 1,
+                    stagger: 0.02,
+                    duration: 0.34,
+                    ease: "back.out(1.7)",
+                    scrollTrigger: {
+                        trigger: containerRef.current,
+                        start: "top 80%",
+                        once: true,
+                        invalidateOnRefresh: true,
+                    },
+                }
+            );
         },
         { scope: containerRef, dependencies: [] }
     );
@@ -40,7 +50,7 @@ export default function Skills() {
         <section
             id="skills"
             ref={containerRef}
-            className="relative w-full bg-bg-secondary section-padding border-t border-border-subtle"
+            className="relative w-full scroll-mt-24 bg-bg-secondary section-padding border-t border-border-subtle"
         >
             <div className="content-container">
                 <h2 className="font-display text-4xl font-bold mb-12 text-center">
@@ -51,7 +61,7 @@ export default function Skills() {
                     {skillsData.map((category, i) => (
                         <div
                             key={i}
-                            className="skill-card glass-card rounded-xl2 p-6 transition-all duration-300 hover:border-neon-cyan/50"
+                            className="skill-card gsap-fade-init glass-card rounded-2xl p-6 transition-all duration-300 hover:border-neon-cyan/50"
                         >
                             <div className="flex items-center gap-3 mb-4">
                                 <span className="text-2xl" aria-hidden="true">
@@ -65,7 +75,7 @@ export default function Skills() {
                                 {category.skills.map((skill, j) => (
                                     <span
                                         key={j}
-                                        className="skill-tag px-3 py-1 text-sm rounded-full bg-bg-primary border border-border-subtle text-text-secondary hover:text-neon-cyan hover:border-neon-cyan/50 hover:shadow-neon-cyan-sm transition-all duration-200 cursor-default"
+                                        className="skill-tag gsap-fade-init px-3 py-1 text-sm rounded-full bg-bg-primary border border-border-subtle text-text-secondary hover:text-neon-cyan hover:border-neon-cyan/50 hover:shadow-neon-cyan-sm transition-all duration-200 cursor-default"
                                     >
                                         {skill}
                                     </span>
