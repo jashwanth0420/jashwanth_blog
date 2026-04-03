@@ -2,17 +2,54 @@
 
 import { useEffect, useRef } from "react";
 
+const PARTICLE_COUNT = 220;
+const CLUSTER_COUNT = 7;
+const DEPTH_SPREAD = 280;
+const CAMERA_DISTANCE = 700;
+const SEARCH_RADIUS = 180;
+const K_NEAREST = 22;
+
+const DEEP_BLUE = { r: 42, g: 108, b: 255 };
+const CYAN = { r: 74, g: 255, b: 235 };
+
+type ClusterCenter = {
+  x: number;
+  y: number;
+  z: number;
+};
+
+type Particle = {
+    cluster: number;
+    x: number;
+    y: number;
+    z: number;
+    size: number;
+    drift: number;
+    phase: number;
+    sparkle: number;
+    glow: number;
+};
+
+function randomInRange(min: number, max: number) {
+    return min + Math.random() * (max - min);
+}
+
+function lerp(a: number, b: number, t: number) {
+    return a + (b - a) * t;
+}
+
 export default function EmbeddingDustField() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
 
-    // Fix: check if canvas exists
     if (!canvas) return;
+        const canvasEl = canvas;
 
-        const ctx = canvas.getContext("2d", { alpha: true });
+        const ctx = canvasEl.getContext("2d", { alpha: true });
         if (!ctx) return;
+        const context = ctx;
 
         const pointer = {
             x: Number.NaN,
@@ -52,11 +89,11 @@ export default function EmbeddingDustField() {
             width = window.innerWidth;
             height = window.innerHeight;
             dpr = Math.min(window.devicePixelRatio || 1, 2);
-            canvas.width = Math.floor(width * dpr);
-            canvas.height = Math.floor(height * dpr);
-            canvas.style.width = `${width}px`;
-            canvas.style.height = `${height}px`;
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            canvasEl.width = Math.floor(width * dpr);
+            canvasEl.height = Math.floor(height * dpr);
+            canvasEl.style.width = `${width}px`;
+            canvasEl.style.height = `${height}px`;
+            context.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
 
         function onPointerMove(e: PointerEvent) {
@@ -74,10 +111,9 @@ export default function EmbeddingDustField() {
         function animate(now: number) {
             const t = now * 0.00018;
 
-            ctx.clearRect(0, 0, width, height);
+            context.clearRect(0, 0, width, height);
 
-            // Deep black base with a subtle cold vignette.
-            const bg = ctx.createRadialGradient(
+            const bg = context.createRadialGradient(
                 width * 0.5,
                 height * 0.45,
                 0,
@@ -88,8 +124,8 @@ export default function EmbeddingDustField() {
             bg.addColorStop(0, "rgba(3, 7, 18, 0.95)");
             bg.addColorStop(0.55, "rgba(2, 3, 10, 0.98)");
             bg.addColorStop(1, "rgba(0, 0, 0, 1)");
-            ctx.fillStyle = bg;
-            ctx.fillRect(0, 0, width, height);
+            context.fillStyle = bg;
+            context.fillRect(0, 0, width, height);
 
             const projected: {
                 x: number;
@@ -145,7 +181,6 @@ export default function EmbeddingDustField() {
 
             if (pointer.visible) {
                 const radiusSq = SEARCH_RADIUS * SEARCH_RADIUS;
-
                 const nearby = projected
                     .filter((item) => item.distSq < radiusSq)
                     .sort((a, b) => a.distSq - b.distSq)
@@ -184,24 +219,31 @@ export default function EmbeddingDustField() {
                 const alpha = Math.min(0.92, 0.2 + depthFactor * 0.38 + glowBoost * 0.42);
                 const radius = item.radius + glowBoost * 1.8;
 
-                ctx.shadowBlur = 10 + glowBoost * 26;
-                ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${0.32 + glowBoost * 0.42})`;
-                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * twinkle})`;
+                context.shadowBlur = 10 + glowBoost * 26;
+                context.shadowColor = `rgba(${r}, ${g}, ${b}, ${0.32 + glowBoost * 0.42})`;
+                context.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * twinkle})`;
 
-                ctx.beginPath();
-                ctx.arc(item.x, item.y, radius, 0, Math.PI * 2);
-                ctx.fill();
+                context.beginPath();
+                context.arc(item.x, item.y, radius, 0, Math.PI * 2);
+                context.fill();
             }
 
-            ctx.shadowBlur = 0;
+            context.shadowBlur = 0;
             rafId = window.requestAnimationFrame(animate);
         }
 
-    animate();
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+        window.addEventListener("pointermove", onPointerMove);
+        window.addEventListener("pointerleave", onPointerLeave);
+        animate(0);
 
-    return () => {
-      window.removeEventListener("resize", resize);
-    };
+        return () => {
+            window.removeEventListener("resize", resizeCanvas);
+            window.removeEventListener("pointermove", onPointerMove);
+            window.removeEventListener("pointerleave", onPointerLeave);
+            window.cancelAnimationFrame(rafId);
+        };
   }, []);
 
   return (
@@ -212,6 +254,9 @@ export default function EmbeddingDustField() {
         top: 0,
         left: 0,
         zIndex: -1,
+                width: "100vw",
+                height: "100vh",
+                pointerEvents: "none",
       }}
     />
   );
