@@ -4,6 +4,7 @@ import { Space_Grotesk } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import TechCursor from "@/components/ui/TechCursor";
 import EmbeddingDustField from "@/components/ui/EmbeddingDustField";
+import RevealObserver from "@/components/ui/RevealObserver";
 import "./globals.css";
 
 // ─── Font Configuration ────────────────────────────────────────────────────
@@ -75,16 +76,35 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const themeInitScript = `
+        (function () {
+            try {
+                var stored = localStorage.getItem('theme');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var theme = (stored === 'light' || stored === 'dark') ? stored : (prefersDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.style.colorScheme = theme;
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.documentElement.style.colorScheme = 'dark';
+            }
+        })();
+    `;
+
     return (
         <html
             lang="en"
             className={`dark ${inter.variable} ${spaceGrotesk.variable} ${GeistMono.variable}`}
             suppressHydrationWarning
         >
+            <head>
+                <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+            </head>
             <body className="relative bg-black text-text-primary font-sans antialiased">
                 <EmbeddingDustField />
                 <div className="relative z-10">
                     <TechCursor />
+                    <RevealObserver />
                     {children}
                 </div>
             </body>

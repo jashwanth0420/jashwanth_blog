@@ -1,53 +1,63 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { gsap, useGSAP } from "@/animations/gsap.config";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { personal } from "@/lib/data";
 
-// ─── Typewriter Hook ──────────────────────────────────────────────────────────
-// Cycles through the roles array with a blinking cursor effect.
-// Pure React — no GSAP TextPlugin required (avoids Club license dependency).
-function useTypewriter(words: string[], speed = 80, pause = 1800) {
-    const [displayed, setDisplayed] = useState("");
-    const [wordIndex, setWordIndex] = useState(0);
+type TypingPhase = "typing" | "pausing" | "deleting";
+
+function useTerminalTypewriter(lines: string[]) {
+    const [lineIndex, setLineIndex] = useState(0);
     const [charIndex, setCharIndex] = useState(0);
-    const [deleting, setDeleting] = useState(false);
+    const [phase, setPhase] = useState<TypingPhase>("typing");
+
+    const activeLine = useMemo(() => lines[lineIndex] ?? "", [lines, lineIndex]);
 
     useEffect(() => {
-        if (!words.length) return;
-        const current = words[wordIndex] ?? "";
-        if (!current) return;
+        if (!lines.length) return;
 
-        const timeout = setTimeout(() => {
-            if (!deleting) {
-                // Typing forward
-                setDisplayed(current.slice(0, charIndex + 1));
-                if (charIndex + 1 === current.length) {
-                    // Pause at end of word, then start deleting
-                    setTimeout(() => setDeleting(true), pause);
-                    return;
-                }
-                setCharIndex((c) => c + 1);
+        let delay = 60;
+
+        if (phase === "typing") {
+            if (charIndex < activeLine.length) {
+                delay = 60;
             } else {
-                // Deleting backward
-                setDisplayed(current.slice(0, charIndex - 1));
-                if (charIndex - 1 === 0) {
-                    setDeleting(false);
-                    setWordIndex((w) => (w + 1) % words.length);
-                    setCharIndex(0);
-                    return;
-                }
-                setCharIndex((c) => c - 1);
+                delay = 2000;
             }
-        }, deleting ? speed / 2 : speed);
+        }
 
-        return () => clearTimeout(timeout);
-    }, [charIndex, deleting, wordIndex, words, speed, pause]);
+        if (phase === "deleting") {
+            delay = 35;
+        }
 
-    return displayed;
+        const timer = window.setTimeout(() => {
+            if (phase === "typing") {
+                if (charIndex < activeLine.length) {
+                    setCharIndex((c) => c + 1);
+                } else {
+                    setPhase("pausing");
+                }
+                return;
+            }
+
+            if (phase === "pausing") {
+                setPhase("deleting");
+                return;
+            }
+
+            if (charIndex > 0) {
+                setCharIndex((c) => c - 1);
+            } else {
+                setLineIndex((prev) => (prev + 1) % lines.length);
+                setPhase("typing");
+            }
+        }, delay);
+
+        return () => window.clearTimeout(timer);
+    }, [activeLine.length, charIndex, lines.length, phase]);
+
+    return activeLine.slice(0, charIndex);
 }
 
-// ─── Neon CTA Button variants ────────────────────────────────────────────────
 interface CtaButtonProps {
     href: string;
     id: string;
@@ -58,13 +68,13 @@ interface CtaButtonProps {
 
 function CtaButton({ href, id, variant, children, external = false }: CtaButtonProps) {
     const base =
-        "inline-flex items-center gap-2 px-7 py-3 rounded-xl font-semibold font-display text-sm tracking-wide transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary";
+        "inline-flex items-center gap-2 px-7 py-3 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
 
     const solid =
-        "bg-neon-cyan text-bg-primary hover:bg-neon-cyan-dim hover:shadow-neon-cyan hover:scale-[1.03] active:scale-[0.98]";
+        "bg-white text-black hover:bg-slate-200 hover:scale-[1.02] active:scale-[0.98]";
 
     const ghost =
-        "border border-neon-cyan/50 text-neon-cyan hover:border-neon-cyan hover:bg-neon-cyan/10 hover:shadow-neon-cyan-sm hover:scale-[1.03] active:scale-[0.98]";
+        "border border-white/20 text-white hover:border-white hover:bg-white/5 hover:scale-[1.02] active:scale-[0.98]";
 
     return (
         <a
@@ -79,140 +89,219 @@ function CtaButton({ href, id, variant, children, external = false }: CtaButtonP
     );
 }
 
-// ─── Background Grid Decoration ──────────────────────────────────────────────
-function HeroBackground() {
-    return (
-        <>
-            {/* Deep radial glow behind heading */}
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 overflow-hidden"
-            >
-                {/* Top-centre blue-purple nebula */}
-                <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[600px]
-                        rounded-full bg-[radial-gradient(ellipse_at_center,rgba(124,58,237,0.18)_0%,transparent_70%)]
-                        blur-3xl" />
-                {/* Bottom-left cyan glow */}
-                <div className="absolute bottom-[10%] left-[5%] w-[400px] h-[400px]
-                        rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,245,212,0.12)_0%,transparent_70%)]
-                        blur-3xl" />
-                {/* Dot grid overlay */}
-                <div className="absolute inset-0 dot-grid-bg opacity-40" />
-            </div>
-        </>
-    );
+type Particle = {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+};
+
+function HeroParticleCanvas({ containerRef }: { containerRef: React.RefObject<HTMLElement | null> }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        const container = containerRef.current;
+        if (!canvas || !container) return;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const particleCount = 60;
+        const maxLinkDistance = 120;
+        const cursorInfluenceRadius = 140;
+        const accentRgb = "56, 189, 248";
+        const cursor = { x: 0, y: 0, active: false };
+
+        let width = 0;
+        let height = 0;
+        let rafId = 0;
+
+        const particles: Particle[] = [];
+
+        const randomVelocity = () => (Math.random() - 0.5) * 0.45;
+
+        const initParticles = () => {
+            particles.length = 0;
+            for (let i = 0; i < particleCount; i += 1) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: randomVelocity(),
+                    vy: randomVelocity(),
+                });
+            }
+        };
+
+        const resizeCanvas = () => {
+            const rect = container.getBoundingClientRect();
+            width = rect.width;
+            height = rect.height;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+            canvas.width = Math.max(1, Math.floor(width * dpr));
+            canvas.height = Math.max(1, Math.floor(height * dpr));
+            canvas.style.width = `${Math.floor(width)}px`;
+            canvas.style.height = `${Math.floor(height)}px`;
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            initParticles();
+        };
+
+        const drawFrame = () => {
+            ctx.clearRect(0, 0, width, height);
+
+            for (let i = 0; i < particles.length; i += 1) {
+                const p = particles[i];
+
+                if (cursor.active) {
+                    const dx = cursor.x - p.x;
+                    const dy = cursor.y - p.y;
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq > 0 && distSq < cursorInfluenceRadius * cursorInfluenceRadius) {
+                        const force = (1 - Math.sqrt(distSq) / cursorInfluenceRadius) * 0.02;
+                        p.vx += dx * force * 0.01;
+                        p.vy += dy * force * 0.01;
+                    }
+                }
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                p.vx *= 0.992;
+                p.vy *= 0.992;
+
+                if (Math.abs(p.vx) < 0.02) p.vx += randomVelocity() * 0.08;
+                if (Math.abs(p.vy) < 0.02) p.vy += randomVelocity() * 0.08;
+
+                if (p.x < 0 || p.x > width) {
+                    p.vx *= -1;
+                    p.x = Math.max(0, Math.min(width, p.x));
+                }
+                if (p.y < 0 || p.y > height) {
+                    p.vy *= -1;
+                    p.y = Math.max(0, Math.min(height, p.y));
+                }
+            }
+
+            for (let i = 0; i < particles.length; i += 1) {
+                const p1 = particles[i];
+
+                for (let j = i + 1; j < particles.length; j += 1) {
+                    const p2 = particles[j];
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const dist = Math.hypot(dx, dy);
+
+                    if (dist <= maxLinkDistance) {
+                        const alpha = (1 - dist / maxLinkDistance) * 0.18;
+                        ctx.strokeStyle = `rgba(${accentRgb}, ${alpha})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            ctx.fillStyle = `rgba(${accentRgb}, 0.3)`;
+            for (let i = 0; i < particles.length; i += 1) {
+                const p = particles[i];
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 1.7, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            rafId = window.requestAnimationFrame(drawFrame);
+        };
+
+        const onMouseMove = (e: MouseEvent) => {
+            const rect = container.getBoundingClientRect();
+            cursor.x = e.clientX - rect.left;
+            cursor.y = e.clientY - rect.top;
+            cursor.active = true;
+        };
+
+        const onMouseLeave = () => {
+            cursor.active = false;
+        };
+
+        resizeCanvas();
+        drawFrame();
+
+        window.addEventListener("resize", resizeCanvas);
+        container.addEventListener("mousemove", onMouseMove);
+        container.addEventListener("mouseleave", onMouseLeave);
+
+        return () => {
+            window.cancelAnimationFrame(rafId);
+            window.removeEventListener("resize", resizeCanvas);
+            container.removeEventListener("mousemove", onMouseMove);
+            container.removeEventListener("mouseleave", onMouseLeave);
+        };
+    }, [containerRef]);
+
+    return <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true" />;
 }
 
-// ─── Hero Section ─────────────────────────────────────────────────────────────
 export default function Hero() {
-    const containerRef = useRef<HTMLElement>(null);
-    const role = useTypewriter(personal.roles);
-
-    // ── GSAP stagger entrance ─────────────────────────────────────────────────
-    // dependencies: [] ensures the timeline is created exactly once.
-    // Without it, useGSAP re-runs on every render (e.g. triggered by the
-    // typewriter state updates), producing duplicate overlapping animations.
-    useGSAP(
-        () => {
-            const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-            tl.from(".hero-eyebrow", {
-                opacity: 0,
-                y: 20,
-                duration: 0.6,
-            })
-                .from(".hero-headline", {
-                    opacity: 0,
-                    y: 48,
-                    duration: 0.85,
-                }, "-=0.3")
-                .from(".hero-typewriter-row", {
-                    opacity: 0,
-                    y: 24,
-                    duration: 0.6,
-                }, "-=0.4")
-                .from(".hero-description", {
-                    opacity: 0,
-                    y: 20,
-                    duration: 0.6,
-                }, "-=0.3")
-                .from(".hero-cta-group", {
-                    opacity: 0,
-                    y: 20,
-                    duration: 0.6,
-                }, "-=0.3")
-                .from(".hero-meta-row", {
-                    opacity: 0,
-                    duration: 0.5,
-                }, "-=0.2");
-        },
-        { scope: containerRef, dependencies: [] }
+    const sectionRef = useRef<HTMLElement>(null);
+    const roles = useMemo(
+        () => [
+            "> AI Systems Engineer",
+            "> LangChain & RAG Architect",
+            "> MERN Stack Developer",
+            "> Backend R&D @ Vlog Innovations",
+        ],
+        []
     );
+    const typed = useTerminalTypewriter(roles);
 
     return (
         <section
-            id="about"
-            ref={containerRef}
+            id="hero"
+            ref={sectionRef}
             aria-label="Hero — Introduction"
-            className="relative flex min-h-screen flex-col items-center justify-center
-                 overflow-hidden bg-bg-primary px-6 pt-24 pb-16 text-center"
+            className="relative overflow-hidden flex min-h-screen items-center justify-center px-6 pt-24 pb-16 bg-transparent text-center"
         >
-            <HeroBackground />
+            <HeroParticleCanvas containerRef={sectionRef} />
+            <div className="relative z-10 flex max-w-5xl flex-col items-center gap-6">
+                <span className="font-mono-custom text-sm tracking-widest text-slate-400 uppercase">
+                    {`< ${personal.headline} />`}
+                </span>
 
-            {/* ── Content stack ── */}
-            <div className="relative z-10 flex max-w-4xl flex-col items-center gap-6">
-
-                {/* Eyebrow tag */}
-                <div className="hero-eyebrow flex items-center gap-3">
-                    <span
-                        aria-hidden="true"
-                        className="h-px w-10 bg-gradient-to-r from-transparent to-neon-cyan"
-                    />
-                    <span className="font-mono-custom text-sm tracking-widest text-neon-cyan uppercase
-                           glow-cyan-text">
-                        {`< ${personal.headline} />`}
-                    </span>
-                    <span
-                        aria-hidden="true"
-                        className="h-px w-10 bg-gradient-to-l from-transparent to-neon-cyan"
-                    />
-                </div>
-
-                {/* Main headline */}
-                <h1 className="hero-headline font-display font-bold leading-[1.1] tracking-tight
-                       text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-text-primary">
+                <h1 className="font-display font-bold leading-[1.1] tracking-tight text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-white">
                     {personal.tagline}
                 </h1>
 
-                {/* Typewriter role row */}
-                <div
-                    className="hero-typewriter-row flex items-center justify-center gap-3
-                     min-h-[2rem] sm:min-h-[2.5rem]"
-                    aria-live="polite"
-                    aria-label={`Current role: ${role}`}
-                >
-                    <span className="text-lg sm:text-xl font-medium text-text-secondary font-display">
-                        {role}
-                    </span>
-                    {/* Blinking cursor */}
-                    <span
-                        aria-hidden="true"
-                        className="inline-block w-0.5 h-5 sm:h-6 bg-neon-cyan rounded-full animate-pulse-glow"
-                    />
-                </div>
-
-                {/* Short description */}
-                <p className="hero-description max-w-2xl text-base sm:text-lg text-text-secondary
-                      leading-relaxed">
+                <p className="max-w-2xl text-base sm:text-lg text-slate-400 leading-relaxed">
                     I engineer intelligent full-stack systems at the intersection of{" "}
-                    <span className="text-text-primary font-medium">backend engineering</span>,{" "}
-                    <span className="text-text-primary font-medium">applied machine learning</span>, and{" "}
-                    <span className="text-text-primary font-medium">AI architecture</span> — designing scalable
+                    <span className="text-white font-medium">backend engineering</span>,{" "}
+                    <span className="text-white font-medium">applied machine learning</span>, and{" "}
+                    <span className="text-white font-medium">AI architecture</span> - designing scalable
                     systems ready for real-world deployment.
                 </p>
 
-                {/* CTA buttons */}
-                <div className="hero-cta-group flex flex-wrap items-center justify-center gap-4 pt-2">
+                <div className="w-full max-w-3xl rounded-2xl border border-slate-700 bg-[#0f1117] text-left shadow-[0_16px_48px_rgba(2,6,23,0.28)] overflow-hidden">
+                    <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700/70 bg-[#121521]">
+                        <span className="w-3 h-3 rounded-full bg-[#ff5f56]" aria-hidden="true" />
+                        <span className="w-3 h-3 rounded-full bg-[#ffbd2e]" aria-hidden="true" />
+                        <span className="w-3 h-3 rounded-full bg-[#27c93f]" aria-hidden="true" />
+                    </div>
+                    <div className="px-5 py-6 sm:px-6 sm:py-8 min-h-[110px] flex items-center">
+                        <p
+                            className="terminal-mono text-sm sm:text-base text-[#d1d5db] break-words"
+                            aria-live="polite"
+                            aria-label={`Current role line: ${typed}`}
+                        >
+                            {typed}
+                            <span aria-hidden="true" className="terminal-cursor" />
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                     <CtaButton
                         id="hero-cta-projects"
                         href="#projects"
@@ -251,37 +340,6 @@ export default function Hero() {
                         </svg>
                     </CtaButton>
                 </div>
-
-                {/* Meta row — achievements / badges */}
-                <div className="hero-meta-row flex flex-wrap items-center justify-center gap-x-6 gap-y-2
-                        pt-4 text-xs text-text-muted font-mono-custom">
-                    <span className="flex items-center gap-1.5">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse" />
-                        Top 5 Finalist · Neuro Nexus Hackathon 2024
-                    </span>
-                    <span className="hidden sm:inline text-border-subtle">|</span>
-                    <span className="flex items-center gap-1.5">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-neon-purple animate-pulse" />
-                        R&amp;D Student · Engineering Monk
-                    </span>
-                    <span className="hidden sm:inline text-border-subtle">|</span>
-                    <span className="flex items-center gap-1.5">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-neon-blue animate-pulse" />
-                        {personal.roles.join(" · ")}
-                    </span>
-                </div>
-            </div>
-
-            {/* Scroll indicator */}
-            <div
-                aria-hidden="true"
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5
-                   opacity-40 hover:opacity-80 transition-opacity duration-300"
-            >
-                <span className="font-mono-custom text-[10px] tracking-widest text-text-muted uppercase">
-                    scroll
-                </span>
-                <div className="w-px h-10 bg-gradient-to-b from-neon-cyan to-transparent animate-pulse" />
             </div>
         </section>
     );

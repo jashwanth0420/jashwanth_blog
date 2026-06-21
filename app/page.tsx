@@ -1,6 +1,8 @@
 import Navbar from "@/components/ui/Navbar";
 import Hero from "@/components/sections/Hero";
+import StatsBar from "@/components/sections/StatsBar";
 import Skills from "@/components/sections/Skills";
+import Experience from "@/components/sections/Experience";
 import Projects from "@/components/sections/Projects";
 import Contact from "@/components/sections/Contact";
 
@@ -23,8 +25,14 @@ export default function Home() {
                 {/* Phase 3 — Hero */}
                 <Hero />
 
+                {/* Phase 4 — Stats */}
+                <StatsBar />
+
                 {/* Phase 4 — Skills */}
                 <Skills />
+
+                {/* Phase 5 — Experience */}
+                <Experience />
 
                 {/* Phase 5 — Projects */}
                 <Projects />
