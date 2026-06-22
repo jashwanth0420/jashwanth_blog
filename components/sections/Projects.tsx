@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type ProjectCard = {
     id: number;
@@ -105,10 +105,10 @@ export default function Projects() {
         });
     };
 
-    const isMatch = (project: ProjectCard) => {
+    const isMatch = useCallback((project: ProjectCard) => {
         if (!selectedFilters.length) return true;
         return selectedFilters.every((tag) => project.filterTags.includes(tag));
-    };
+    }, [selectedFilters]);
 
     const visibleCount = PROJECTS.filter(isMatch).length;
 
@@ -118,7 +118,7 @@ export default function Projects() {
         if (openProject && !isMatch(openProject)) {
             setOpenId(null);
         }
-    }, [openId, selectedFilters]);
+    }, [openId, selectedFilters, isMatch]);
 
     return (
         <section id="projects" className="relative w-full bg-bg-primary section-padding">

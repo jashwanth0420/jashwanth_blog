@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Space_Grotesk } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
-import TechCursor from "@/components/ui/TechCursor";
+import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import EmbeddingDustField from "@/components/ui/EmbeddingDustField";
 import RevealObserver from "@/components/ui/RevealObserver";
+import LiquidEther from "@/components/LiquidEther";
 import "./globals.css";
 
 // ─── Font Configuration ────────────────────────────────────────────────────
@@ -101,9 +102,28 @@ export default function RootLayout({
                 <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
             </head>
             <body className="relative bg-black text-text-primary font-sans antialiased">
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: -1, pointerEvents: 'none' }}>
+                    <LiquidEther
+                        colors={['#5227FF', '#FF9FFC', '#B497CF']}
+                        mouseForce={20}
+                        cursorSize={100}
+                        isViscous={false}
+                        viscous={30}
+                        iterationsViscous={32}
+                        iterationsPoisson={32}
+                        resolution={0.5}
+                        isBounce={false}
+                        autoDemo={true}
+                        autoSpeed={0.5}
+                        autoIntensity={2.2}
+                        takeoverDuration={0.25}
+                        autoResumeDelay={3000}
+                        autoRampDuration={0.6}
+                    />
+                </div>
                 <EmbeddingDustField />
                 <div className="relative z-10">
-                    <TechCursor />
+                    <SmoothCursor />
                     <RevealObserver />
                     {children}
                 </div>

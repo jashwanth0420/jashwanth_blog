@@ -399,3 +399,16 @@ a {
   opacity: 0;
   transform: translateY(24px);
 }
+
+/* SmoothCursor — hide default cursor globally */
+* {
+  cursor: none !important;
+}
+input, textarea, select {
+  cursor: text !important;
+}
+
+/* TargetCursor — mark all interactive elements as targets */
+a, button, [role="button"], .pill, .glass-card, .neon-border-card {
+  cursor: none;
+}
