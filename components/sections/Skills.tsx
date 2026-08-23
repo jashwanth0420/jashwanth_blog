@@ -78,14 +78,16 @@ const SKILL_CARDS: SkillCard[] = [
         tools: ["n8n", "API integrations", "Selenium"],
         logo: (
             <Logo>
-                {/* n8n logo */}
-                <svg viewBox="0 0 24 24" className="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#EA4B71" d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5h-2.25v-4.125L10.5 16.5H8.25l3.75-4.5-3.75-4.5h2.25l3.75 4.125V7.5H16.5v9z"/>
+                {/* n8n official brand icon */}
+                <svg viewBox="0 0 40 40" className="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" fill="#EA4B71"/>
+                    <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold" fontFamily="monospace">n8n</text>
                 </svg>
+                {/* Selenium */}
                 <Svg src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/selenium/selenium-original.svg" label="Selenium" />
-                {/* API icon */}
-                <svg viewBox="0 0 24 24" className="w-10 h-10 fill-neon-cyan" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+                {/* API integrations — plug/connection icon */}
+                <svg viewBox="0 0 24 24" className="w-10 h-10" fill="none" stroke="#00f5d4" strokeWidth="1.5" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                 </svg>
             </Logo>
         ),

@@ -31,8 +31,8 @@ const TIMELINE_ITEMS: TimelineItem[] = [
     {
         role: "B.E. Computer Science",
         organization: "SVCE, Chennai",
-        duration: "2022-2026 (Expected)",
-        description: "CGPA: 8.33 | Published researcher | Hackathon finalist",
+        duration: "2024-2028 (Expected)",
+        description: "CGPA: 8.38 | Published researcher | Hackathon finalist",
     },
 ];
 

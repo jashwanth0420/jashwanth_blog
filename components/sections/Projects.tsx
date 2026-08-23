@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+// @ts-ignore
+import { ParticleCard, GlobalSpotlight } from "@/components/MagicBento";
 
 type ProjectCard = {
     id: number;
@@ -12,7 +14,7 @@ type ProjectCard = {
     tech: string[];
     filterTags: string[];
     github: string;
-    demo?: string;
+    demo?: string | null;
 };
 
 const FILTERS = ["All", "LangChain", "RAG", "MERN", "Python", "Research", "Hackathon"] as const;
@@ -28,7 +30,8 @@ const PROJECTS: ProjectCard[] = [
         outcome: "Top 5 Finalist - Neuro Nexus Hackathon 2024",
         tech: ["LLMs", "Automation Frameworks"],
         filterTags: ["Hackathon", "Python"],
-        github: "https://github.com/Jashwanth",
+        github: "https://github.com/jashwanth0420/Ace_Hackerrupt-25",
+        demo: null,
     },
     {
         id: 2,
@@ -39,7 +42,8 @@ const PROJECTS: ProjectCard[] = [
         outcome: "Used in production-style compliance review workflows",
         tech: ["LangChain", "RAG", "FastAPI"],
         filterTags: ["LangChain", "RAG", "Python"],
-        github: "https://github.com/Jashwanth",
+        github: "https://github.com/jashwanth0420",
+        demo: null,
     },
     {
         id: 3,
@@ -50,7 +54,8 @@ const PROJECTS: ProjectCard[] = [
         outcome: "Published Research",
         tech: ["ML", "n8n", "Research"],
         filterTags: ["Research", "Python"],
-        github: "https://github.com/Jashwanth",
+        github: "https://github.com/jashwanth0420",
+        demo: null,
     },
     {
         id: 4,
@@ -61,7 +66,8 @@ const PROJECTS: ProjectCard[] = [
         outcome: "Hackathon-ready legal assistant for iCube-7.0",
         tech: ["LangChain", "RAG", "FastAPI"],
         filterTags: ["LangChain", "RAG", "Hackathon", "Python"],
-        github: "https://github.com/Jashwanth",
+        github: "https://github.com/jashwanth0420",
+        demo: null,
     },
     {
         id: 5,
@@ -72,7 +78,20 @@ const PROJECTS: ProjectCard[] = [
         outcome: "End-to-end production-style platform delivered",
         tech: ["MERN", "MongoDB", "Node.js", "Express"],
         filterTags: ["MERN"],
-        github: "https://github.com/Jashwanth",
+        github: "https://github.com/jashwanth0420",
+        demo: null,
+    },
+    {
+        id: 6,
+        title: "Stray Dog Hotspotter",
+        shortDescription: "Geolocation platform mapping stray dog hotspots with automated volunteer notifications.",
+        problem: "No centralised system exists to report and track stray dog hotspots for volunteer response.",
+        solution: "Built a maps-integrated reporting platform with n8n-powered automated volunteer notification workflows.",
+        outcome: "Community-ready civic tech platform",
+        tech: ["JavaScript", "Maps API", "n8n"],
+        filterTags: ["Python"],
+        github: "https://github.com/jashwanth0420/dog-spotter-",
+        demo: null,
     },
 ];
 
@@ -86,6 +105,7 @@ export default function Projects() {
     const [openId, setOpenId] = useState<number | null>(null);
     const [selectedFilters, setSelectedFilters] = useState<FilterTag[]>([]);
     const contentRefs = useRef<Record<number, HTMLDivElement | null>>({});
+    const projectsGridRef = useRef<HTMLDivElement>(null);
 
     const toggleCard = (id: number) => {
         setOpenId((prev) => (prev === id ? null : id));
@@ -155,7 +175,8 @@ export default function Projects() {
                     </p>
                 </div>
 
-                <div>
+                <div ref={projectsGridRef} className="bento-section">
+                    <GlobalSpotlight gridRef={projectsGridRef} glowColor="0, 245, 212" />
                     {PROJECTS.map((project) => {
                         const matched = isMatch(project);
                         const isOpen = openId === project.id;
@@ -171,7 +192,19 @@ export default function Projects() {
                                         : "opacity-0 scale-95 max-h-0 mb-0 pointer-events-none",
                                 ].join(" ")}
                             >
-                                <article className="neon-border-card glass-card rounded-2xl overflow-hidden border border-border-subtle">
+                                {/* @ts-ignore */}
+                                <ParticleCard
+                                    className="magic-bento-card magic-bento-card--border-glow rounded-2xl overflow-hidden border border-border-subtle"
+                                    glowColor="0, 245, 212"
+                                    particleCount={10}
+                                    enableTilt={true}
+                                    enableMagnetism={true}
+                                    clickEffect={true}
+                                    style={{
+                                        '--glow-color': '0, 245, 212',
+                                        backgroundColor: '#0f1117',
+                                    }}
+                                >
                                     <button
                                         type="button"
                                         onClick={() => toggleCard(project.id)}
@@ -268,7 +301,7 @@ export default function Projects() {
                                                         GitHub
                                                     </a>
                                                 )}
-                                                {project.demo && project.demo !== "#" && (
+                                                {project.demo && (
                                                     <a
                                                         href={project.demo}
                                                         target="_blank"
@@ -295,7 +328,7 @@ export default function Projects() {
                                             </div>
                                         </div>
                                     </div>
-                                </article>
+                                </ParticleCard>
                             </div>
                         );
                     })}

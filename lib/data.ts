@@ -1,6 +1,7 @@
 export const personal = {
     headline: "AI Systems Engineer",
     tagline: "Building Systems That Reason, Retrieve & Respond.",
+    bio: "I'm Jashwanth, a Computer Science undergraduate at SVCE Chennai (2024–2028) with a CGPA of 8.38, specialising in AI systems engineering and full-stack development. I build production-grade applications at the intersection of LLM orchestration, RAG architecture, and backend engineering — currently working as a Backend R&D Engineer at Vlog Innovations while tutoring Python and DSA at Engineering Monk. As a published researcher and Top 5 Hackathon finalist, I'm driven by one goal: shipping intelligent systems that work in the real world.",
     roles: [
         "AI Systems Engineer",
         "MERN Stack Developer",
@@ -11,9 +12,10 @@ export const personal = {
 };
 
 export const socials = {
-    github: "https://github.com/Jashwanth",
-    linkedin: "#", // Update with real link
-    email: "jashwanth@example.com", // Update with real email
+    github: "https://github.com/jashwanth0420",
+    linkedin: "https://www.linkedin.com/in/b-jashwanth-shankar-791a27327/",
+    leetcode: "https://leetcode.com/u/jashwanth_shankar/",
+    email: "jashwanth0320@gmail.com",
 };
 
 export const skillsData = [
@@ -75,8 +77,8 @@ export const projectsData = [
         "title": "TrustCart",
         "stack": ["MERN", "MongoDB", "Node.js", "Express"],
         "description": "AI-Enhanced E-Commerce. Built a scalable e-commerce platform with secure authentication, structured product management, and backend-first architecture. Designed with fraud-aware architecture concepts.",
-        "github": "https://github.com/Jashwanth",
-        "demo": "#",
+        "github": "https://github.com/jashwanth0420",
+        "demo": null,
         "featured": true
     },
     {
@@ -84,8 +86,8 @@ export const projectsData = [
         "title": "FDA Report Checker",
         "stack": ["LangChain", "RAG", "FastAPI", "LLMs"],
         "description": "Built an AI-powered FDA compliance document checker using RAG architecture with LangChain. Parses regulatory PDFs and validates against FDA standards using vector retrieval.",
-        "github": "https://github.com/Jashwanth",
-        "demo": "#",
+        "github": "https://github.com/jashwanth0420",
+        "demo": null,
         "featured": true
     },
     {
@@ -93,8 +95,8 @@ export const projectsData = [
         "title": "AI Agent for Business Negotiation",
         "stack": ["LLMs", "Automation Frameworks"],
         "description": "Engineered an autonomous multi-turn AI negotiation agent using reasoning-driven decision logic. Top 5 Finalist – Neuro Nexus Hackathon 2024.",
-        "github": "https://github.com/Jashwanth",
-        "demo": "#",
+        "github": "https://github.com/jashwanth0420/Ace_Hackerrupt-25",
+        "demo": null,
         "featured": false
     },
     {
@@ -102,8 +104,8 @@ export const projectsData = [
         "title": "Stray Dog Hotspotter",
         "stack": ["JavaScript", "Maps API", "n8n"],
         "description": "Built a geolocation-based reporting platform mapping stray dog hotspots with automated volunteer notification workflows.",
-        "github": "https://github.com/Jashwanth",
-        "demo": "#",
+        "github": "https://github.com/jashwanth0420/dog-spotter-",
+        "demo": null,
         "featured": false
     },
     {
@@ -112,8 +114,8 @@ export const projectsData = [
         "stack": ["ML", "Ensemble Models", "Research", "n8n"],
         "description": "Published research: Engineered an ensemble ML pipeline for drug risk classification achieving high F1 scores. Co-authored and presented at SVCE. Features automated compliance flagging via n8n.",
         "badge": "Published Research Paper",
-        "github": "https://github.com/Jashwanth",
-        "demo": "#",
+        "github": "https://github.com/jashwanth0420",
+        "demo": null,
         "featured": false
     },
     {
@@ -121,8 +123,8 @@ export const projectsData = [
         "title": "JurisMinds — Legal AI Chatbot",
         "stack": ["LangChain", "RAG", "LLMs", "FastAPI"],
         "description": "Built a domain-specific legal chatbot for the iCube-7.0 Hackathon using RAG and LLM integration. Handles legal queries with context-aware retrieval from structured legal documents.",
-        "github": "https://github.com/Jashwanth",
-        "demo": "#",
+        "github": "https://github.com/jashwanth0420",
+        "demo": null,
         "featured": false
     }
 ];

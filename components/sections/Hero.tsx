@@ -304,7 +304,7 @@ export default function Hero() {
                 <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                     <CtaButton
                         id="hero-cta-projects"
-                        href="#projects"
+                        href="/projects"
                         variant="solid"
                     >
                         View My Work
@@ -320,25 +320,17 @@ export default function Hero() {
                         </svg>
                     </CtaButton>
 
-                    <CtaButton
-                        id="hero-cta-resume"
-                        href="/resume.pdf"
-                        variant="ghost"
-                        external
-                    >
-                        Download Resume
-                        <svg
-                            className="w-4 h-4"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth={2}
-                            aria-hidden="true"
+                    <a
+                            id="hero-cta-resume"
+                            href="/Jashwanth_resume.pdf"
+                            download="Jashwanth_Resume.pdf"
+                            className="inline-flex items-center gap-2 px-7 py-3 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 border border-white/20 text-white hover:border-white hover:bg-white/5 hover:scale-[1.02] active:scale-[0.98]"
                         >
-                            <path strokeLinecap="round" strokeLinejoin="round"
-                                d="M12 16v-8m0 8l-3-3m3 3l3-3M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2" />
-                        </svg>
-                    </CtaButton>
+                            Download Resume
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 16v-8m0 8l-3-3m3 3l3-3M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2" />
+                            </svg>
+                        </a>
                 </div>
             </div>
         </section>

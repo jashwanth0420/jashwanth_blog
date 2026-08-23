@@ -664,4 +664,5 @@ const MagicBento = ({
   );
 };
 
+export { ParticleCard, GlobalSpotlight };
 export default MagicBento;
