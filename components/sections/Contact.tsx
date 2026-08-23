@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+// @ts-ignore
+import { ParticleCard, GlobalSpotlight } from "@/components/MagicBento";
 import { gsap, useGSAP } from "@/animations/gsap.config";
 import { socials } from "@/lib/data";
 
@@ -149,7 +151,7 @@ export default function Contact() {
         <section
             id="contact"
             ref={containerRef}
-            className="relative w-full bg-bg-secondary section-padding border-t border-border-subtle"
+            className="relative w-full bg-bg-secondary section-padding border-t border-border-subtle bento-section"
         >
             <div className="content-container flex flex-col items-center">
                 <h2 className="font-display text-4xl font-bold mb-4 text-center">
@@ -159,7 +161,21 @@ export default function Contact() {
                     I am currently open to exciting architectural and full-stack opportunities. Whether you have a question or just want to say hi, I&apos;ll try my best to get back to you!
                 </p>
 
-                <div className="contact-card glass-card neon-border-card w-full max-w-2xl p-8 md:p-12 mb-16 relative overflow-hidden">
+                <GlobalSpotlight gridRef={containerRef} glowColor="0, 245, 212" />
+
+                {/* @ts-ignore */}
+                <ParticleCard
+                    className="contact-card magic-bento-card magic-bento-card--border-glow w-full max-w-2xl p-8 md:p-12 mb-16 relative overflow-hidden"
+                    glowColor="0, 245, 212"
+                    particleCount={10}
+                    enableTilt={true}
+                    enableMagnetism={true}
+                    clickEffect={true}
+                    style={{
+                        '--glow-color': '0, 245, 212',
+                        backgroundColor: '#0f1117',
+                    }}
+                >
                     <form className="flex flex-col gap-6 relative z-10" onSubmit={onSubmit} noValidate>
                         <div className="relative">
                             <input
@@ -291,7 +307,7 @@ export default function Contact() {
                             </div>
                         )}
                     </form>
-                </div>
+                </ParticleCard>
 
                 <div className="social-container flex gap-5">
                     {/* GitHub */}
