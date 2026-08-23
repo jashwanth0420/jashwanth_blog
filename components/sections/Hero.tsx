@@ -304,7 +304,7 @@ export default function Hero() {
                 <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                     <CtaButton
                         id="hero-cta-projects"
-                        href="/projects"
+                        href="#projects"
                         variant="solid"
                     >
                         View My Work
