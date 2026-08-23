@@ -89,9 +89,9 @@ const DefaultCursorSVG: FC = () => {
 export function SmoothCursor({
   cursor = <DefaultCursorSVG />,
   springConfig = {
-    damping: 45,
-    stiffness: 400,
-    mass: 1,
+    damping: 30,
+    stiffness: 800,
+    mass: 0.25,
     restDelta: 0.001,
   },
 }: SmoothCursorProps) {
@@ -107,13 +107,15 @@ export function SmoothCursor({
   const cursorY = useSpring(0, springConfig)
   const rotation = useSpring(0, {
     ...springConfig,
-    damping: 60,
-    stiffness: 300,
+    damping: 50,
+    stiffness: 500,
+    mass: 0.3,
   })
   const scale = useSpring(1, {
     ...springConfig,
-    stiffness: 500,
-    damping: 35,
+    stiffness: 700,
+    damping: 25,
+    mass: 0.2,
   })
 
   useEffect(() => {
@@ -159,7 +161,7 @@ export function SmoothCursor({
       updateVelocity(currentPos)
 
       const speed = Math.sqrt(
-        Math.pow(velocity.current.x, 2) + Math.pow(velocity.current.y, 2)
+          Math.pow(velocity.current.x, 2) + Math.pow(velocity.current.y, 2)
       )
 
       cursorX.set(currentPos.x)
@@ -167,7 +169,7 @@ export function SmoothCursor({
 
       if (speed > 0.1) {
         const currentAngle =
-          Math.atan2(velocity.current.y, velocity.current.x) * (180 / Math.PI) + 90
+            Math.atan2(velocity.current.y, velocity.current.x) * (180 / Math.PI) + 90
 
         let angleDiff = currentAngle - previousAngle.current
         if (angleDiff > 180) angleDiff -= 360
@@ -183,23 +185,12 @@ export function SmoothCursor({
       }
     }
 
-    let rafId = 0
-    const throttledPointerMove = (e: PointerEvent) => {
-      if (!isTrackablePointer(e.pointerType)) return
-      if (rafId) return
-      rafId = requestAnimationFrame(() => {
-        smoothPointerMove(e)
-        rafId = 0
-      })
-    }
-
     document.body.style.cursor = "none"
-    window.addEventListener("pointermove", throttledPointerMove, { passive: true })
+    window.addEventListener("pointermove", smoothPointerMove, { passive: true })
 
     return () => {
-      window.removeEventListener("pointermove", throttledPointerMove)
+      window.removeEventListener("pointermove", smoothPointerMove)
       document.body.style.cursor = "auto"
-      if (rafId) cancelAnimationFrame(rafId)
       if (timeout !== null) clearTimeout(timeout)
     }
   }, [cursorX, cursorY, rotation, scale, isEnabled])
